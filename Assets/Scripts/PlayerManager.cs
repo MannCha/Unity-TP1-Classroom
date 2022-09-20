@@ -1,12 +1,12 @@
 using Cinemachine;
-using System;
-using System.Collections;
-using System.Collections.Generic;
+using TP2.Systems.Utils;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerManager : MonoBehaviour
+public class PlayerManager : Singleton<PlayerManager>
 {
+    public PlayerController CurrentDog { get; private set; }
+
     public static CinemachineVirtualCamera VirtualCamera;
     public static PlayerController[] Dogs = new PlayerController[3];
     public PlayerController Lou;
@@ -16,7 +16,7 @@ public class PlayerManager : MonoBehaviour
     public InputAction _louSwitch;
     public InputAction _skyeSwitch;
 
-    public static PlayerController _currentDog;
+
     private static int _dogIndex;
     private void Start()
     {
@@ -34,40 +34,43 @@ public class PlayerManager : MonoBehaviour
         
         _dogIndex = 0;
 
-        _currentDog = Dogs[_dogIndex];
-        _currentDog.gameObject.layer = LayerMask.NameToLayer("Default");
+        CurrentDog = Dogs[_dogIndex];
+        CurrentDog.gameObject.layer = LayerMask.NameToLayer("Default");
+    }
+
+    public void SwitchDog()
+    {
+
+        //myVal = (myVal++) % (maxValue+1);
+        _dogIndex++;
+        if (_dogIndex > 2)
+        {
+            _dogIndex = 0;
+        }
+        CurrentDog.gameObject.layer = LayerMask.NameToLayer("Ground");
+
+        CurrentDog = Dogs[_dogIndex];
+
+        CurrentDog.gameObject.layer = LayerMask.NameToLayer("Default");
+
+        print($"current dog is {CurrentDog}! ");
+        Inputs.switching = false;
+        VirtualCamera.Follow = CurrentDog.transform;
     }
 
     private void LouSwitch(InputAction.CallbackContext context)
     {
         print("changing to Lou");
         VirtualCamera.Follow = Lou.transform;
-        _currentDog = Lou;
+        CurrentDog = Lou;
     }
 
     private void SkyeSwitch(InputAction.CallbackContext context)
     {
         print("changing to Skye");
         VirtualCamera.Follow = Skye.transform;
-        _currentDog = Skye;
+        CurrentDog = Skye;
     }
 
-    public static void SwitchDog()
-    {
 
-        //myVal = (myVal++) % (maxValue+1);
-        _dogIndex++;
-        if (_dogIndex > 2) {
-            _dogIndex = 0;
-        }
-        _currentDog.gameObject.layer = LayerMask.NameToLayer("Ground");
-        
-        _currentDog = Dogs[_dogIndex];
-
-        _currentDog.gameObject.layer = LayerMask.NameToLayer("Default");
-
-        print($"current dog is { _currentDog }! ");
-        Inputs.switching = false;
-        VirtualCamera.Follow = _currentDog.transform;
-    }
 }
