@@ -22,7 +22,7 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (this != PlayerManager._currentDog)
+        if (this != PlayerManager.Instance.CurrentDog)
         {
             _rb.velocity = new Vector2(0, 0);
             animator.SetBool("moving", false);
@@ -44,7 +44,7 @@ public class PlayerController : MonoBehaviour
         {
             if (Inputs.switching) {
 
-                PlayerManager.SwitchDog();
+                PlayerManager.Instance.SwitchDog();
                 
             }
             animator.SetBool("jumping", false);
