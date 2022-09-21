@@ -1,45 +1,46 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TP2.Systems.Utils;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class Inputs : MonoBehaviour
+public class Inputs : Singleton<Inputs>
 {
     public PlayerInput playerInput;
-    private InputAction _jumpAction;
+    public InputAction GoToNextDogAction;
+    private InputAction JumpAction;
+    private Vector2 InputAxis;
+    public bool Jumping { get; private set; }
+    public bool Switching = false;
 
-
-    public static InputAction _goToNextDogAction;
-    private static Vector2 InputAxis;
-    public static bool jumping = false;
-    public static bool switching = false;
-
-    // Start is called before the first frame update
-    private void Awake() 
+    private void Start() 
     {
-        _jumpAction = playerInput.actions["Jump"];
-        _jumpAction.started += context => OnJumpPerformed(context);
-        _jumpAction.canceled += context => OnJumpCanceled(context);
+        Debug.Log(Instance);
+        JumpAction = playerInput.actions["Jump"];
+        JumpAction.started += context => OnJumpPerformed(context);
+        JumpAction.canceled += context => OnJumpCanceled(context);
 
-        _goToNextDogAction = playerInput.actions["GoToNextDog"];
-        _goToNextDogAction.performed += context => OnGoToNextDogPerformed(context);
-        _goToNextDogAction.canceled += context => OnGoToNextDogCanceled(context);
+        GoToNextDogAction = playerInput.actions["GoToNextDog"];
+        GoToNextDogAction.performed += context => OnGoToNextDogPerformed(context);
+        GoToNextDogAction.canceled += context => OnGoToNextDogCanceled(context);
     }
-    private void OnDisable() {
-        _jumpAction.started -= OnJumpPerformed;
-        _jumpAction.canceled -= OnJumpCanceled;
-        _goToNextDogAction.performed -= OnGoToNextDogPerformed;
-        _goToNextDogAction.canceled -= OnGoToNextDogCanceled;
+
+    private void OnDisable() 
+    {
+        JumpAction.started -= OnJumpPerformed;
+        JumpAction.canceled -= OnJumpCanceled;
+        GoToNextDogAction.performed -= OnGoToNextDogPerformed;
+        GoToNextDogAction.canceled -= OnGoToNextDogCanceled;
     }
     private void OnGoToNextDogPerformed(InputAction.CallbackContext context)
     {
-        switching = true;
+        Switching = true;
     }
 
     private void OnGoToNextDogCanceled(InputAction.CallbackContext context)
     {
-        switching = false;
+        Switching = false;
     }
 
     public void OnMovement(InputValue val)
@@ -49,43 +50,43 @@ public class Inputs : MonoBehaviour
 
     private void OnJumpPerformed(InputAction.CallbackContext context)
     {
-        jumping = true;
+        Jumping = true;
     }
 
     private void OnJumpCanceled(InputAction.CallbackContext context)
     {   
-        jumping = false;
+        Jumping = false;
     }
 
-    public static bool FacingRight() 
+    public bool FacingRight() 
     {
         return InputAxis.x == 1;
     }
-    public static bool FacingLeft() 
+    public bool FacingLeft() 
     {
         return InputAxis.x == -1;
     }
-    public static bool IsMoving() 
+    public bool IsMoving() 
     {
         return InputAxis.x != 0;
     }
 
-    public static bool IsCrouching() 
+    public bool IsCrouching() 
     {
         return InputAxis.y == -1;
     }
 
-    public static bool IsJumping() 
+    public bool IsJumping() 
     {
-        return jumping;
+        return Jumping;
     }
 
-    public static float GetHorizontalInput() 
+    public float GetHorizontalInput() 
     {
         return InputAxis.x;
     }
 
-    internal static bool IsMovingUp()
+    internal bool IsMovingUp()
     {
         return InputAxis.y > 0;
     }
